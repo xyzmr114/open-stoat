@@ -1,6 +1,12 @@
 import { IUpdateInfo, updateElectronApp } from "update-electron-app";
 
-import { BrowserWindow, Notification, app, globalShortcut, shell } from "electron";
+import {
+  BrowserWindow,
+  Notification,
+  app,
+  globalShortcut,
+  shell,
+} from "electron";
 import started from "electron-squirrel-startup";
 
 import { initAutoLaunch } from "./native/autoLaunch";

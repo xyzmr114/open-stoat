@@ -9,15 +9,30 @@ declare global {
     };
     launcherApi?: {
       getConfig: () => Promise<{
-        savedServers: Array<{ id: string; name: string; url: string; lastUsed?: number }>;
+        savedServers: Array<{
+          id: string;
+          name: string;
+          url: string;
+          lastUsed?: number;
+        }>;
         lastServerUrl: string;
         autoConnect: boolean;
         officialUrl: string;
       }>;
-      connect: (data: { url: string; remember?: boolean; name?: string }) => Promise<boolean>;
-      saveServer: (server: { id?: string; name?: string; url: string }) => Promise<any>;
+      connect: (data: {
+        url: string;
+        remember?: boolean;
+        name?: string;
+      }) => Promise<boolean>;
+      saveServer: (server: {
+        id?: string;
+        name?: string;
+        url: string;
+      }) => Promise<any>;
       deleteServer: (id: string) => Promise<any>;
-      testServer: (url: string) => Promise<{ ok: boolean; latency: number; error?: string }>;
+      testServer: (
+        url: string,
+      ) => Promise<{ ok: boolean; latency: number; error?: string }>;
       setAutoConnect: (enabled: boolean) => Promise<boolean>;
       openExternal: (url: string) => Promise<void>;
     };
@@ -38,16 +53,34 @@ document.getElementById("btn-close")?.addEventListener("click", () => {
 });
 
 // Elements
-const btnConnectOfficial = document.getElementById("btn-connect-official") as HTMLButtonElement;
-const customForm = document.getElementById("custom-server-form") as HTMLFormElement;
-const serverUrlInput = document.getElementById("server-url") as HTMLInputElement;
-const serverNameInput = document.getElementById("server-name") as HTMLInputElement;
-const chkAutoConnect = document.getElementById("chk-auto-connect") as HTMLInputElement;
-const btnTestServer = document.getElementById("btn-test-server") as HTMLButtonElement;
-const btnSaveServer = document.getElementById("btn-save-server") as HTMLButtonElement;
-const btnConnectCustom = document.getElementById("btn-connect-custom") as HTMLButtonElement;
+const btnConnectOfficial = document.getElementById(
+  "btn-connect-official",
+) as HTMLButtonElement;
+const customForm = document.getElementById(
+  "custom-server-form",
+) as HTMLFormElement;
+const serverUrlInput = document.getElementById(
+  "server-url",
+) as HTMLInputElement;
+const serverNameInput = document.getElementById(
+  "server-name",
+) as HTMLInputElement;
+const chkAutoConnect = document.getElementById(
+  "chk-auto-connect",
+) as HTMLInputElement;
+const btnTestServer = document.getElementById(
+  "btn-test-server",
+) as HTMLButtonElement;
+const btnSaveServer = document.getElementById(
+  "btn-save-server",
+) as HTMLButtonElement;
+const btnConnectCustom = document.getElementById(
+  "btn-connect-custom",
+) as HTMLButtonElement;
 const testResult = document.getElementById("test-result") as HTMLDivElement;
-const savedList = document.getElementById("saved-servers-list") as HTMLDivElement;
+const savedList = document.getElementById(
+  "saved-servers-list",
+) as HTMLDivElement;
 
 const linkGithub = document.getElementById("link-github");
 const linkDocs = document.getElementById("link-docs");
@@ -63,12 +96,15 @@ linkDocs?.addEventListener("click", (e) => {
 });
 
 // Render saved servers
-function renderSavedServers(servers: Array<{ id: string; name: string; url: string; lastUsed?: number }>) {
+function renderSavedServers(
+  servers: Array<{ id: string; name: string; url: string; lastUsed?: number }>,
+) {
   if (!savedList) return;
   savedList.innerHTML = "";
 
   if (!servers || servers.length === 0) {
-    savedList.innerHTML = '<div class="empty-state">No custom saved servers. Enter an address above to save one.</div>';
+    savedList.innerHTML =
+      '<div class="empty-state">No custom saved servers. Enter an address above to save one.</div>';
     return;
   }
 
@@ -97,7 +133,11 @@ function renderSavedServers(servers: Array<{ id: string; name: string; url: stri
     connectBtn.className = "btn btn-secondary btn-sm";
     connectBtn.textContent = "Connect";
     connectBtn.addEventListener("click", () => {
-      window.launcherApi?.connect({ url: srv.url, remember: true, name: srv.name });
+      window.launcherApi?.connect({
+        url: srv.url,
+        remember: true,
+        name: srv.name,
+      });
     });
 
     const deleteBtn = document.createElement("button");
@@ -181,7 +221,9 @@ btnTestServer?.addEventListener("click", async () => {
       testResult.textContent = `Connected successfully! (Latency: ${res.latency}ms)`;
     } else {
       testResult.className = "test-result error";
-      testResult.textContent = res?.error ? `Connection failed: ${res.error}` : "Connection failed. Server unreachable.";
+      testResult.textContent = res?.error
+        ? `Connection failed: ${res.error}`
+        : "Connection failed. Server unreachable.";
     }
   } catch (err: any) {
     testResult.className = "test-result error";

@@ -23,6 +23,8 @@ jobs:
       release_version: ${{ steps.rp.outputs.version }}
     steps:
       - id: app-token
+        if: ${{ secrets.GH_STOAT_RELEASE_APP_ID != '' }}
+        continue-on-error: true
         uses: actions/create-github-app-token@v2
         with:
           app-id: ${{ secrets.GH_STOAT_RELEASE_APP_ID }}
@@ -30,7 +32,7 @@ jobs:
       - id: rp
         uses: googleapis/release-please-action@v4
         with:
-          token: ${{ steps.app-token.outputs.token }}
+          token: ${{ steps.app-token.outputs.token || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
 
   publish-release:

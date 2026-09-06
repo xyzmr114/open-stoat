@@ -1,4 +1,5 @@
 import { ipcMain, net, shell } from "electron";
+
 import { config } from "./config";
 import { connectToServer, currentServerUrl, loadLauncher } from "./window";
 
@@ -13,48 +14,59 @@ export function initLauncherIpc() {
     };
   });
 
-  ipcMain.handle("launcher:connect", async (_, data: { url: string; remember?: boolean; name?: string }) => {
-    connectToServer(data.url, {
-      remember: data.remember,
-      name: data.name,
-    });
-    return true;
-  });
+  ipcMain.handle(
+    "launcher:connect",
+    async (_, data: { url: string; remember?: boolean; name?: string }) => {
+      connectToServer(data.url, {
+        remember: data.remember,
+        name: data.name,
+      });
+      return true;
+    },
+  );
 
   ipcMain.handle("launcher:open-launcher", async () => {
     loadLauncher();
     return true;
   });
 
-  ipcMain.handle("launcher:save-server", async (_, server: { id?: string; name: string; url: string }) => {
-    let url = server.url.trim();
-    if (!/^https?:\/\//i.test(url)) {
-      url = "https://" + url;
-    }
+  ipcMain.handle(
+    "launcher:save-server",
+    async (_, server: { id?: string; name: string; url: string }) => {
+      let url = server.url.trim();
+      if (!/^https?:\/\//i.test(url)) {
+        url = "https://" + url;
+      }
 
-    const servers = [...config.savedServers];
-    const id = server.id || "srv-" + Date.now();
-    const existingIndex = servers.findIndex((s) => s.id === id || s.url.replace(/\/+$/, "").toLowerCase() === url.replace(/\/+$/, "").toLowerCase());
+      const servers = [...config.savedServers];
+      const id = server.id || "srv-" + Date.now();
+      const existingIndex = servers.findIndex(
+        (s) =>
+          s.id === id ||
+          s.url.replace(/\/+$/, "").toLowerCase() ===
+            url.replace(/\/+$/, "").toLowerCase(),
+      );
 
-    if (existingIndex >= 0) {
-      servers[existingIndex] = {
-        ...servers[existingIndex],
-        name: server.name || servers[existingIndex].name,
-        url: url,
-        lastUsed: Date.now(),
-      };
-    } else {
-      servers.push({
-        id: id,
-        name: server.name || new URL(url).hostname,
-        url: url,
-        lastUsed: Date.now(),
-      });
-    }
+      if (existingIndex >= 0) {
+        servers[existingIndex] = {
+          ...servers[existingIndex],
+          name: server.name || servers[existingIndex].name,
+          url: url,
+          lastUsed: Date.now(),
+        };
+      } else {
+        servers.push({
+          id: id,
+          name: server.name || new URL(url).hostname,
+          url: url,
+          lastUsed: Date.now(),
+        });
+      }
 
-    config.savedServers = servers;
-    return servers;
-  });
+      config.savedServers = servers;
+      return servers;
+    },
+  );
 
   ipcMain.handle("launcher:delete-server", async (_, id: string) => {
     const servers = (config.savedServers || []).filter((s) => s.id !== id);
@@ -71,38 +83,46 @@ export function initLauncherIpc() {
     try {
       const parsed = new URL(url);
       const startTime = Date.now();
-      
-      return new Promise<{ ok: boolean; latency: number; error?: string }>((resolve) => {
-        const req = net.request({
-          method: "GET",
-          url: parsed.toString(),
-        });
 
-        const timer = setTimeout(() => {
-          try { req.abort(); } catch {}
-          resolve({ ok: false, latency: 0, error: "Connection timed out (5s)" });
-        }, 5000);
-
-        req.on("response", (res) => {
-          clearTimeout(timer);
-          const latency = Date.now() - startTime;
-          resolve({
-            ok: res.statusCode >= 200 && res.statusCode < 500,
-            latency,
+      return new Promise<{ ok: boolean; latency: number; error?: string }>(
+        (resolve) => {
+          const req = net.request({
+            method: "GET",
+            url: parsed.toString(),
           });
-        });
 
-        req.on("error", (err) => {
-          clearTimeout(timer);
-          resolve({
-            ok: false,
-            latency: 0,
-            error: err.message || "Failed to reach server",
+          const timer = setTimeout(() => {
+            try {
+              req.abort();
+            } catch {}
+            resolve({
+              ok: false,
+              latency: 0,
+              error: "Connection timed out (5s)",
+            });
+          }, 5000);
+
+          req.on("response", (res) => {
+            clearTimeout(timer);
+            const latency = Date.now() - startTime;
+            resolve({
+              ok: res.statusCode >= 200 && res.statusCode < 500,
+              latency,
+            });
           });
-        });
 
-        req.end();
-      });
+          req.on("error", (err) => {
+            clearTimeout(timer);
+            resolve({
+              ok: false,
+              latency: 0,
+              error: err.message || "Failed to reach server",
+            });
+          });
+
+          req.end();
+        },
+      );
     } catch (e: any) {
       return { ok: false, latency: 0, error: e?.message || "Invalid URL" };
     }

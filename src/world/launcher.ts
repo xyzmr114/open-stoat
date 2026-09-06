@@ -8,8 +8,7 @@ contextBridge.exposeInMainWorld("launcherApi", {
     ipcRenderer.invoke("launcher:save-server", server),
   deleteServer: (id: string) =>
     ipcRenderer.invoke("launcher:delete-server", id),
-  testServer: (url: string) =>
-    ipcRenderer.invoke("launcher:test-server", url),
+  testServer: (url: string) => ipcRenderer.invoke("launcher:test-server", url),
   setAutoConnect: (enabled: boolean) =>
     ipcRenderer.invoke("launcher:set-auto-connect", enabled),
   openExternal: (url: string) =>
