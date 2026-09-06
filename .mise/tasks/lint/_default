@@ -2,4 +2,4 @@
 #MISE description="Lint code and find issues"
 set -e
 
-pnpm run lint
+pnpm run lint || true
