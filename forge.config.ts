@@ -26,7 +26,7 @@ const ASSET_DIR = "assets/desktop";
  */
 const makers: ForgeConfig["makers"] = [
   new MakerSquirrel({
-    name: STRINGS.name,
+    name: STRINGS.execName,
     authors: STRINGS.author,
     // todo: hoist this
     iconUrl: `https://stoat.chat/app/assets/icon-DUSNE-Pb.ico`,
@@ -38,7 +38,9 @@ const makers: ForgeConfig["makers"] = [
     copyright: "Copyright (C) 2025 Revolt Platforms LTD",
   }),
   new MakerZIP({}),
-  new MakerFlatpak({
+  ...(process.env.BUILD_FLATPAK === "true"
+    ? [
+        new MakerFlatpak({
     options: {
       id: "chat.stoat.StoatDesktop",
       description: STRINGS.description,
@@ -92,7 +94,9 @@ const makers: ForgeConfig["makers"] = [
       ],
       files: [],
     } as MakerFlatpakOptionsConfig,
-  }),
+      }),
+    ]
+  : []),
 ];
 
 const config: ForgeConfig = {
@@ -114,7 +118,7 @@ const config: ForgeConfig = {
   hooks: {
     // Copy the node-pipewire dist to the app on linux
     packageAfterCopy: async (_config, buildPath, _version, platform) => {
-      if (platform === "linux") {
+      if (platform === "linux" && fs.existsSync("node_modules/node-pipewire/dist")) {
         // Copy only the files we need to run the code, which is dist, LICENSE, and package.json
         fs.cpSync(
           "node_modules/node-pipewire/dist",

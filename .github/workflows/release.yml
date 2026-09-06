@@ -1,0 +1,182 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+    paths-ignore:
+      - ".vscode/**"
+      - ".gitignore"
+      - "README.md"
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Release tag (e.g. v1.5.3 - leave blank to use package.json version)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+          - os: ubuntu-latest
+            platform: linux
+          - os: macos-latest
+            platform: macos
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Checkout assets
+        run: git -c submodule."assets".update=checkout submodule update --init assets
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build and package
+        run: pnpm make
+
+      - name: Prepare Windows artifacts
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          if (Test-Path "out/make/squirrel.windows/x64") {
+            Copy-Item -Path "out/make/squirrel.windows/x64/*.exe" -Destination dist/ -ErrorAction SilentlyContinue
+            Copy-Item -Path "out/make/squirrel.windows/x64/*.nupkg" -Destination dist/ -ErrorAction SilentlyContinue
+          }
+          if (Test-Path "out/make/zip/win32/x64") {
+            Copy-Item -Path "out/make/zip/win32/x64/*.zip" -Destination dist/ -ErrorAction SilentlyContinue
+          }
+          if (-not (Test-Path "dist/*.zip") -and (Test-Path "out/Open Stoat-win32-x64")) {
+            Compress-Archive -Path "out/Open Stoat-win32-x64/*" -DestinationPath "dist/open-stoat-windows-x64.zip"
+          }
+          Get-ChildItem dist
+
+      - name: Prepare Linux artifacts
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          mkdir -p dist
+          if [ -d "out/make/zip/linux/x64" ]; then
+            cp out/make/zip/linux/x64/*.zip dist/ 2>/dev/null || true
+          fi
+          if [ -d "out/Open Stoat-linux-x64" ]; then
+            tar -czvf dist/open-stoat-linux-x64.tar.gz -C "out/Open Stoat-linux-x64" .
+          fi
+          ls -la dist
+
+      - name: Prepare macOS artifacts
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          mkdir -p dist
+          find out/make/zip/ -name "*.zip" -exec cp {} dist/ \; 2>/dev/null || true
+          ls -la dist
+
+      - name: Upload platform artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: dist/*
+          if-no-files-found: warn
+
+  publish:
+    name: Publish Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Determine Release Tag
+        id: tag_info
+        shell: bash
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ -n "${{ github.event.inputs.tag_name }}" ]; then
+            RELEASE_TAG="${{ github.event.inputs.tag_name }}"
+          elif [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            RELEASE_TAG="${GITHUB_REF#refs/tags/}"
+          else
+            RELEASE_TAG="v${PKG_VERSION}"
+          fi
+          echo "RELEASE_TAG=$RELEASE_TAG" >> $GITHUB_ENV
+          echo "tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          echo "Releasing with tag: $RELEASE_TAG"
+
+      - name: List Release Files
+        shell: bash
+        run: |
+          ls -la release-assets
+
+      - name: Publish to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.sha }}
+          name: "Open Stoat ${{ env.RELEASE_TAG }}"
+          body: |
+            ## Open Stoat Desktop Client & Launcher
+
+            Welcome to Open Stoat - an open-source desktop client and custom server launcher for Stoat chat!
+
+            ### Features:
+            - **Custom Server Support**: Connect to any self-hosted Stoat/Revolt server.
+            - **Official Server Shortcut**: 1-click access to the official `stoat.chat` servers.
+            - **Server Ping & Status**: Live connection test before launching.
+            - **Server Favorites**: Save and easily manage your favorite server URLs.
+            - **Global Shortcut**: Press `Ctrl+Alt+S` (or `Cmd+Alt+S` on macOS) anytime to open the launcher.
+            - **System Tray Integration**: Easily switch servers from the tray icon.
+
+            ### Downloads:
+            - **Windows**: `open-stoat-setup.exe` (Installer) or `.zip` (Portable)
+            - **Linux**: `open-stoat-linux-x64.tar.gz` or `.zip`
+            - **macOS**: `open-stoat-darwin-*.zip`
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            release-assets/*
+          overwrite_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
