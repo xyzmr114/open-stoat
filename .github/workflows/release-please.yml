@@ -17,6 +17,7 @@ concurrency:
 jobs:
   release-please:
     name: Release Please
+    if: ${{ secrets.GH_STOAT_RELEASE_APP_ID != '' }}
     runs-on: ubuntu-latest
     outputs:
       release_created: ${{ steps.rp.outputs.release_created }}
