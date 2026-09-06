@@ -1,12 +1,176 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Hello World!</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Stoat Launcher</title>
+    <link rel="stylesheet" href="./src/index.css" />
   </head>
   <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-    <script type="module" src="/src/renderer.ts"></script>
+    <!-- Titlebar for custom window frame -->
+    <header class="titlebar" id="titlebar">
+      <div class="drag-region">
+        <div class="app-brand">
+          <svg class="app-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="app-title">Open Stoat</span>
+          <span class="app-tag">Launcher</span>
+        </div>
+      </div>
+      <div class="window-controls">
+        <button id="btn-minimize" class="win-btn" title="Minimize">
+          <svg viewBox="0 0 10 10"><path d="M0,5 L10,5" stroke="currentColor" stroke-width="1.2"></path></svg>
+        </button>
+        <button id="btn-maximize" class="win-btn" title="Maximize">
+          <svg viewBox="0 0 10 10"><rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.2"></rect></svg>
+        </button>
+        <button id="btn-close" class="win-btn win-close" title="Close">
+          <svg viewBox="0 0 10 10"><path d="M1.5,1.5 L8.5,8.5 M8.5,1.5 L1.5,8.5" stroke="currentColor" stroke-width="1.2"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="launcher-container">
+      <div class="hero-section">
+        <div class="hero-badge">OPEN SOURCE CLIENT</div>
+        <h1 class="hero-title">Choose Your Stoat Server</h1>
+        <p class="hero-subtitle">
+          Connect to the official Stoat network or your own self-hosted community instance.
+        </p>
+      </div>
+
+      <div class="grid-layout">
+        <!-- Official Server Card -->
+        <section class="card official-card">
+          <div class="card-header">
+            <div class="badge-icon official-badge">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L1 21h22L12 2zm0 3.5l8.5 14.5H3.5L12 5.5z"></path>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">Official Stoat Network</h2>
+              <span class="card-meta">https://stoat.chat/app</span>
+            </div>
+          </div>
+          <p class="card-desc">
+            The standard public instance managed by the Stoat team with global servers and verified accounts.
+          </p>
+          <div class="card-actions">
+            <button id="btn-connect-official" class="btn btn-primary btn-large">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span>Connect to Official Server</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Custom Instance Card -->
+        <section class="card custom-card">
+          <div class="card-header">
+            <div class="badge-icon custom-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+              </svg>
+            </div>
+            <div>
+              <h2 class="card-title">Self-Hosted / Custom Instance</h2>
+              <span class="card-meta">Enter your custom or private server</span>
+            </div>
+          </div>
+
+          <form id="custom-server-form" class="custom-form" onsubmit="return false;">
+            <div class="form-group">
+              <label for="server-url">Server URL</label>
+              <div class="input-row">
+                <input
+                  type="text"
+                  id="server-url"
+                  placeholder="https://chat.yourserver.com or http://localhost:3000"
+                  spellcheck="false"
+                  required
+                />
+                <button type="button" id="btn-test-server" class="btn btn-secondary" title="Check server reachability">
+                  Test Ping
+                </button>
+              </div>
+              <div id="test-result" class="test-result hidden"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="server-name">Server Nickname (Optional)</label>
+              <input
+                type="text"
+                id="server-name"
+                placeholder="e.g. My Home Lab Server"
+                spellcheck="false"
+              />
+            </div>
+
+            <div class="form-options">
+              <label class="checkbox-label">
+                <input type="checkbox" id="chk-auto-connect" />
+                <span>Always connect to this server on launch (skip launcher)</span>
+              </label>
+            </div>
+
+            <div class="card-actions-row">
+              <button type="button" id="btn-save-server" class="btn btn-secondary">
+                Save to Favorites
+              </button>
+              <button type="submit" id="btn-connect-custom" class="btn btn-accent">
+                Connect Now
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      <!-- Saved Instances Section -->
+      <section class="card saved-servers-card">
+        <div class="card-header">
+          <div class="badge-icon saved-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </div>
+          <div>
+            <h2 class="card-title">Saved Instances & History</h2>
+            <span class="card-meta">Quickly switch between your favorite servers</span>
+          </div>
+        </div>
+
+        <div id="saved-servers-list" class="saved-list">
+          <!-- Populated by JavaScript -->
+          <div class="empty-state">No saved custom servers yet. Enter a server URL above to save it.</div>
+        </div>
+      </section>
+
+      <!-- Footer Info & Tip -->
+      <footer class="launcher-footer">
+        <div class="tip-bar">
+          <span class="tip-icon">💡</span>
+          <span class="tip-text">
+            <strong>Pro Tip:</strong> Press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> or click the System Tray icon anytime while in chat to return to this launcher.
+          </span>
+        </div>
+        <div class="footer-bottom">
+          <div class="footer-links">
+            <a href="#" id="link-github">GitHub Repository</a>
+            <span>•</span>
+            <a href="#" id="link-docs">Self-Hosting Guide</a>
+          </div>
+          <div class="footer-version" id="footer-version">Open Stoat v1.5.3</div>
+        </div>
+      </footer>
+    </main>
+
+    <script type="module" src="./src/renderer.ts"></script>
   </body>
 </html>

@@ -13,10 +13,10 @@ import path from "node:path";
 // import { globSync } from "node:fs";
 
 const STRINGS = {
-  author: "Revolt Platforms LTD",
-  name: "Stoat",
-  execName: "stoat-desktop",
-  description: "Open source user-first chat platform.",
+  author: "Open Stoat Contributors",
+  name: "Open Stoat",
+  execName: "open-stoat",
+  description: "Open source launcher & client for Stoat chat with self-hosted server support.",
 };
 
 const ASSET_DIR = "assets/desktop";
@@ -155,7 +155,12 @@ const config: ForgeConfig = {
           target: "preload",
         },
       ],
-      renderer: [],
+      renderer: [
+        {
+          name: "main_window",
+          config: "vite.renderer.config.ts",
+        },
+      ],
     }),
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application

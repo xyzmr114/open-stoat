@@ -1,7 +1,8 @@
 {
-  "name": "stoat-desktop",
-  "productName": "stoat-desktop",
+  "name": "open-stoat",
+  "productName": "Open Stoat",
   "version": "1.5.3",
+  "description": "Open source launcher and desktop client for Stoat chat with self-hosted server support",
   "main": ".vite/build/main.js",
   "repository": "stoatchat/desktop",
   "scripts": {
@@ -47,7 +48,7 @@
     "json-schema-typed": "^8.0.1",
     "lodash": "^4.17.21",
     "prettier": "^3.6.2",
-    "typescript": "~4.5.4",
+    "typescript": "^7.0.2",
     "vite": "^5.4.20"
   },
   "dependencies": {

@@ -14,17 +14,96 @@ import {
 import windowIconAsset from "../../assets/desktop/icon.png?asset";
 
 import { config } from "./config";
+import { initLauncherIpc } from "./launcher";
 import { updateTrayMenu } from "./tray";
 
 // global reference to main window
 export let mainWindow: BrowserWindow;
 
-// currently in-use build
-export const BUILD_URL = new URL(
-  app.commandLine.hasSwitch("force-server")
-    ? app.commandLine.getSwitchValue("force-server")
-    : /*MAIN_WINDOW_VITE_DEV_SERVER_URL ??*/ "https://stoat.chat/app",
-);
+// currently in-use server origin, or null if showing the launcher
+export let currentServerUrl: string | null = null;
+
+// fallback build URL
+export const BUILD_URL = new URL("https://stoat.chat/app");
+
+export function isAllowedNavigation(navigationUrl: string): boolean {
+  try {
+    const target = new URL(navigationUrl);
+    if (target.protocol === "file:") return true;
+    if (
+      typeof MAIN_WINDOW_VITE_DEV_SERVER_URL !== "undefined" &&
+      MAIN_WINDOW_VITE_DEV_SERVER_URL &&
+      target.origin === new URL(MAIN_WINDOW_VITE_DEV_SERVER_URL).origin
+    ) {
+      return true;
+    }
+    if (currentServerUrl && target.origin === currentServerUrl) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export function loadLauncher() {
+  currentServerUrl = null;
+  if (
+    typeof MAIN_WINDOW_VITE_DEV_SERVER_URL !== "undefined" &&
+    MAIN_WINDOW_VITE_DEV_SERVER_URL
+  ) {
+    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+  } else {
+    mainWindow.loadFile(
+      join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`),
+    );
+  }
+}
+
+export function connectToServer(
+  rawUrl: string,
+  options?: { remember?: boolean; name?: string },
+) {
+  let targetUrl = rawUrl.trim();
+  if (!/^https?:\/\//i.test(targetUrl)) {
+    targetUrl = "https://" + targetUrl;
+  }
+
+  try {
+    const parsed = new URL(targetUrl);
+    currentServerUrl = parsed.origin;
+
+    if (options?.remember) {
+      config.lastServerUrl = targetUrl;
+    }
+
+    const servers = [...(config.savedServers || [])];
+    const existingIndex = servers.findIndex(
+      (s) =>
+        s.url.replace(/\/+$/, "").toLowerCase() ===
+        targetUrl.replace(/\/+$/, "").toLowerCase(),
+    );
+
+    if (existingIndex >= 0) {
+      servers[existingIndex].lastUsed = Date.now();
+      if (options?.name) {
+        servers[existingIndex].name = options.name;
+      }
+    } else {
+      servers.push({
+        id: "srv-" + Date.now(),
+        name: options?.name || parsed.hostname,
+        url: targetUrl,
+        lastUsed: Date.now(),
+      });
+    }
+
+    config.savedServers = servers;
+    mainWindow.loadURL(targetUrl);
+  } catch (err) {
+    console.error("Failed to connect to server:", rawUrl, err);
+  }
+}
 
 // internal window state
 let shouldQuit = false;
@@ -88,10 +167,25 @@ export function createMainWindow() {
     mainWindow.maximize();
   }
 
-  // load the entrypoint
-  mainWindow
-    .loadURL(BUILD_URL.toString())
-    .then(() => mainWindow.webContents.reload());
+  // initialize launcher IPC handlers
+  initLauncherIpc();
+
+  // determine initial view
+  const forceServer = app.commandLine.hasSwitch("force-server")
+    ? app.commandLine.getSwitchValue("force-server")
+    : null;
+
+  if (forceServer) {
+    connectToServer(forceServer, { remember: false });
+  } else if (
+    config.autoConnect &&
+    config.lastServerUrl &&
+    !app.commandLine.hasSwitch("launcher")
+  ) {
+    connectToServer(config.lastServerUrl, { remember: true });
+  } else {
+    loadLauncher();
+  }
 
   // minimise window to tray
   mainWindow.on("close", (event) => {

@@ -28,6 +28,15 @@ const schema = {
   discordRpc: {
     type: "boolean",
   } as JSONSchema.Boolean,
+  autoConnect: {
+    type: "boolean",
+  } as JSONSchema.Boolean,
+  lastServerUrl: {
+    type: "string",
+  } as JSONSchema.String,
+  savedServers: {
+    type: "array",
+  } as JSONSchema.Array,
   windowState: {
     type: "object",
     properties: {
@@ -60,6 +69,15 @@ const store = new Store({
     spellchecker: true,
     hardwareAcceleration: true,
     discordRpc: true,
+    autoConnect: false,
+    lastServerUrl: "https://stoat.chat/app",
+    savedServers: [
+      {
+        id: "official",
+        name: "Official Stoat Server",
+        url: "https://stoat.chat/app",
+      },
+    ],
     windowState: {
       x: 0,
       y: 0,
@@ -83,6 +101,9 @@ class Config {
       spellchecker: this.spellchecker,
       hardwareAcceleration: this.hardwareAcceleration,
       discordRpc: this.discordRpc,
+      autoConnect: this.autoConnect,
+      lastServerUrl: this.lastServerUrl,
+      savedServers: this.savedServers,
       windowState: this.windowState,
     });
   }
@@ -186,6 +207,59 @@ class Config {
 
     (store as never as { set(k: string, value: boolean): void }).set(
       "discordRpc",
+      value,
+    );
+
+    this.sync();
+  }
+
+  get autoConnect(): boolean {
+    return (store as never as { get(k: string, def?: boolean): boolean }).get(
+      "autoConnect",
+      false,
+    );
+  }
+
+  set autoConnect(value: boolean) {
+    (store as never as { set(k: string, value: boolean): void }).set(
+      "autoConnect",
+      value,
+    );
+
+    this.sync();
+  }
+
+  get lastServerUrl(): string {
+    return (store as never as { get(k: string, def?: string): string }).get(
+      "lastServerUrl",
+      "https://stoat.chat/app",
+    );
+  }
+
+  set lastServerUrl(value: string | undefined) {
+    (store as never as { set(k: string, value: string | undefined): void }).set(
+      "lastServerUrl",
+      value,
+    );
+
+    this.sync();
+  }
+
+  get savedServers(): SavedServer[] {
+    return (
+      store as never as { get(k: string, def?: SavedServer[]): SavedServer[] }
+    ).get("savedServers", [
+      {
+        id: "official",
+        name: "Official Stoat Server",
+        url: "https://stoat.chat/app",
+      },
+    ]);
+  }
+
+  set savedServers(value: SavedServer[]) {
+    (store as never as { set(k: string, value: SavedServer[]): void }).set(
+      "savedServers",
       value,
     );
 

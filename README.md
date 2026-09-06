@@ -1,86 +1,66 @@
 <div align="center">
-<h1>
-  Stoat for Desktop
-  
-  [![Stars](https://img.shields.io/github/stars/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/stargazers)
-  [![Forks](https://img.shields.io/github/forks/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/network/members)
-  [![Pull Requests](https://img.shields.io/github/issues-pr/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/pulls)
-  [![Issues](https://img.shields.io/github/issues/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/issues)
-  [![Contributors](https://img.shields.io/github/contributors/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/graphs/contributors)
-  [![License](https://img.shields.io/github/license/stoatchat/for-desktop?style=flat-square&logoColor=white)](https://github.com/stoatchat/for-desktop/blob/main/LICENSE)
-</h1>
-Application for Windows, macOS, and Linux.
+  <h1>Open Stoat</h1>
+  <p><strong>Open-source launcher and desktop client for Stoat (formerly Revolt) with custom self-hosted server support.</strong></p>
 </div>
-<br/>
 
-## Installation
+---
 
-<a href="https://repology.org/project/stoat-desktop/versions">
-    <img src="https://repology.org/badge/vertical-allrepos/stoat-desktop.svg" alt="Packaging status" align="right">
-</a>
+## 🌟 Why Open Stoat?
 
-- All downloads and instructions for Stoat can be found on our [Website](https://stoat.chat/download).
+The official Stoat desktop app hardcodes the official cloud server (`https://stoat.chat/app`) and only allows self-hosted instances through a hidden command-line flag (`--force-server`).
 
-## Development Guide
+**Open Stoat** is an open-source launcher and client fork designed for self-hosters and decentralization:
+- 🚀 **Built-in Launcher**: Choose between official and custom servers on startup.
+- 🌐 **Self-Hosted Support**: Connect to any custom server URL (`https://` or `http://`) with live latency/ping testing.
+- 💾 **Favorites & Saved Instances**: Easily save and manage multiple server configurations.
+- ⚡ **Auto-Connect**: Option to remember your last server and jump straight into chat.
+- 🔄 **Quick Server Switching**: Return to the launcher anytime via the system tray menu or with the global shortcut <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> (or <kbd>Cmd</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> on macOS).
+- 🎨 **Modern Stoat Dark Theme**: Sleek UI matching Stoat's signature styling.
 
-_Contribution guidelines for Desktop app TBA!_
+---
 
-<!-- Before contributing, make yourself familiar with [our contribution guidelines](https://developers.revolt.chat/contrib.html), the [code style guidelines](./GUIDELINES.md), and the [technical documentation for this project](https://revoltchat.github.io/frontend/). -->
+## 🚀 Getting Started
 
-Before getting started, you'll want to install:
+### Prerequisites
+- [Node.js](https://nodejs.org/) (v18+)
+- [npm](https://www.npmjs.com/)
 
-- [Git](https://git-scm.com/install/)
-- [mise-en-place](https://mise.jdx.dev/getting-started.html)
-
-Then proceed to setup:
-
+### Installation & Development
 ```bash
-# clone the repository
-git clone --recursive https://github.com/stoatchat/for-desktop stoat-for-desktop
-cd stoat-for-desktop
+# Install dependencies
+npm install
 
-# Install tools from mise
-mise install
+# Start development mode
+npm start
 
-# install all packages
-mise install:frozen
+# Package standalone executable
+npm run package
 
-# start the application
-mise dev
-# ... or build the bundle
-mise build
-# ... or build all distributables
-mise make
+# Create installer packages
+npm run make
 ```
 
-Various useful commands for development testing:
+---
 
-```bash
-# connect to the development server
-mise exec -- pnpm start -- --force-server http://localhost:5173
+## 🧭 How to Switch Servers
 
-# test the flatpak (after `make`)
-mise exec -- pnpm install:flatpak
-mise exec -- pnpm run:flatpak
-# ... also connect to dev server like so:
-mise exec -- pnpm run:flatpak --force-server http://localhost:5173
+- **From System Tray**: Right-click the Stoat icon in your system tray and click **Switch Server / Launcher**.
+- **Keyboard Shortcut**: Press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> anywhere in the app to return to the server picker.
 
-# Nix-specific instructions for testing
-pnpm package
-pnpm run:nix
-# ... as before:
-pnpm run:nix --force-server=http://localhost:5173
-# a better solution would be telling
-# Electron Forge where system Electron is
-```
+---
 
-### Pulling in Stoat's assets
+## 🤝 Forking & Contributing on GitHub
 
-If you want to pull in Stoat brand assets after pulling, run the following:
+1. Click **Fork** on the upstream repository or this fork.
+2. In your local repository directory:
+   ```bash
+   git remote add origin https://github.com/<your-username>/<your-fork-name>.git
+   git push -u origin main
+   ```
+3. Submit issues or pull requests to improve the open launcher!
 
-```bash
-# update the assets
-mise assets
-```
+---
 
-Currently, this is required to build, any forks are expected to provide their own assets.
+## 📄 License
+
+GNU AGPL v3 (same as upstream Stoat / Revolt client).

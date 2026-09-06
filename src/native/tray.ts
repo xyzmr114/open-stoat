@@ -4,10 +4,10 @@ import trayIconAsset from "../../assets/desktop/icon.png?asset";
 import macOsTrayIconAsset from "../../assets/desktop/iconTemplate.png?asset";
 import { version } from "../../package.json";
 
-import { mainWindow, quitApp } from "./window";
+import { loadLauncher, mainWindow, quitApp } from "./window";
 
 // internal tray state
-let tray: Tray = null;
+let tray: Tray | null = null;
 
 // Create and resize tray icon for macOS
 function createTrayIcon() {
@@ -38,6 +38,7 @@ export function initTray() {
 }
 
 export function updateTrayMenu() {
+  if (!tray) return;
   tray.setContextMenu(
     Menu.buildFromTemplate([
       { label: "Stoat for Desktop", type: "normal", enabled: false },
@@ -53,6 +54,15 @@ export function updateTrayMenu() {
         ]),
       },
       { type: "separator" },
+      {
+        label: "Switch Server / Launcher",
+        type: "normal",
+        click() {
+          mainWindow.show();
+          mainWindow.focus();
+          loadLauncher();
+        },
+      },
       {
         label: mainWindow.isVisible() ? "Hide App" : "Show App",
         type: "normal",

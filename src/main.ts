@@ -1,6 +1,6 @@
 import { IUpdateInfo, updateElectronApp } from "update-electron-app";
 
-import { BrowserWindow, Notification, app, shell } from "electron";
+import { BrowserWindow, Notification, app, globalShortcut, shell } from "electron";
 import started from "electron-squirrel-startup";
 
 import { initAutoLaunch } from "./native/autoLaunch";
@@ -8,7 +8,12 @@ import { config } from "./native/config";
 import { initDiscordRpc } from "./native/discordRpc";
 import { initTray } from "./native/tray";
 import { initVirtualMic } from "./native/virtualMic";
-import { BUILD_URL, createMainWindow, mainWindow } from "./native/window";
+import {
+  createMainWindow,
+  isAllowedNavigation,
+  loadLauncher,
+  mainWindow,
+} from "./native/window";
 
 // Squirrel-specific logic
 // create/remove shortcuts on Windows when installing / uninstalling
@@ -60,6 +65,20 @@ if (acquiredLock) {
     if (process.platform === "win32") {
       app.setAppUserModelId("chat.stoat.notifications");
     }
+
+    // Register global shortcut to return to Open Stoat Launcher
+    globalShortcut.register("CommandOrControl+Alt+S", () => {
+      if (mainWindow) {
+        mainWindow.show();
+        mainWindow.restore();
+        mainWindow.focus();
+        loadLauncher();
+      }
+    });
+  });
+
+  app.on("will-quit", () => {
+    globalShortcut.unregisterAll();
   });
 
   // focus the window if we try to launch again
@@ -89,10 +108,16 @@ if (acquiredLock) {
 
   // ensure URLs launch in external context
   app.on("web-contents-created", (_, contents) => {
-    // prevent navigation out of build URL origin
+    // prevent navigation out of allowed origins (launcher or current server)
     contents.on("will-navigate", (event, navigationUrl) => {
-      if (new URL(navigationUrl).origin !== BUILD_URL.origin) {
+      if (!isAllowedNavigation(navigationUrl)) {
         event.preventDefault();
+        if (
+          navigationUrl.startsWith("http:") ||
+          navigationUrl.startsWith("https:")
+        ) {
+          shell.openExternal(navigationUrl);
+        }
       }
     });
 
