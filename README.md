@@ -1,42 +1,59 @@
 <div align="center">
-  <h1>Open Stoat</h1>
-  <p><strong>Open-source launcher and desktop client for Stoat (formerly Revolt) with custom self-hosted server support.</strong></p>
+  <h1>🦡 Open Stoat</h1>
+  <p><strong>An open launcher & desktop client for <a href="https://stoat.chat">Stoat</a> (formerly Revolt) with first-class self-hosted server support.</strong></p>
+
+  <p>
+    <a href="https://github.com/xyzmr114/open-stoat"><img src="https://img.shields.io/badge/Status-Active-brightgreen.svg?style=flat-square" alt="Status" /></a>
+    <a href="https://github.com/xyzmr114/open-stoat/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg?style=flat-square" alt="License: AGPL v3" /></a>
+    <a href="https://github.com/stoatchat/for-desktop"><img src="https://img.shields.io/badge/Upstream-stoatchat%2Ffor--desktop-orange.svg?style=flat-square" alt="Upstream" /></a>
+  </p>
 </div>
 
 ---
 
 ## 🌟 Why Open Stoat?
 
-The official Stoat desktop app hardcodes the official cloud server (`https://stoat.chat/app`) and only allows self-hosted instances through a hidden command-line flag (`--force-server`).
+The official Stoat desktop client hardcodes the official cloud server (`https://stoat.chat/app`) and only allows self-hosted instances via a hidden command-line flag (`--force-server`).
 
-**Open Stoat** is an open-source launcher and client fork designed for self-hosters and decentralization:
-- 🚀 **Built-in Launcher**: Choose between official and custom servers on startup.
-- 🌐 **Self-Hosted Support**: Connect to any custom server URL (`https://` or `http://`) with live latency/ping testing.
-- 💾 **Favorites & Saved Instances**: Easily save and manage multiple server configurations.
-- ⚡ **Auto-Connect**: Option to remember your last server and jump straight into chat.
-- 🔄 **Quick Server Switching**: Return to the launcher anytime via the system tray menu or with the global shortcut <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> (or <kbd>Cmd</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> on macOS).
-- 🎨 **Modern Stoat Dark Theme**: Sleek UI matching Stoat's signature styling.
+**Open Stoat** is a community-driven fork that puts self-hosting first:
+- 🚀 **Interactive Launcher**: Built-in graphical launcher to choose or enter your server URL on launch.
+- 🌐 **1-Click Official Connect**: Quickly connect to the official Stoat network (`https://stoat.chat/app`).
+- ⚡ **Self-Hosted & Custom Instances**: Easily connect to any self-hosted or private Stoat server (`https://` or `http://`).
+- 📡 **Live Ping / Reachability Test**: Test latency and verify server reachability before connecting.
+- 💾 **Favorites & History**: Save your favorite servers and quickly switch between them.
+- 🔄 **Quick Server Switching**: Return to the launcher anytime via the **System Tray** or using the global shortcut <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> (or <kbd>Cmd</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> on macOS).
+- ⚙️ **Auto-Connect**: Remember your preferred server and connect automatically on launch, while keeping the launcher accessible anytime.
+- 🎨 **Stoat Dark Theme**: Sleek, polished UI matching Stoat's signature design language.
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (v18+)
-- [npm](https://www.npmjs.com/)
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
 
-### Installation & Development
+### Installation & Running
+
 ```bash
-# Install dependencies
+# 1. Clone your fork
+git clone https://github.com/xyzmr114/open-stoat.git
+cd open-stoat
+
+# 2. Install dependencies
 npm install
 
-# Start development mode
+# 3. Start the application in development mode
 npm start
+```
 
-# Package standalone executable
+### Building Standalone Packages
+
+```bash
+# Build the packaged executable
 npm run package
 
-# Create installer packages
+# Create platform installers (Squirrel for Windows, Zip, Flatpak, etc.)
 npm run make
 ```
 
@@ -44,23 +61,25 @@ npm run make
 
 ## 🧭 How to Switch Servers
 
-- **From System Tray**: Right-click the Stoat icon in your system tray and click **Switch Server / Launcher**.
-- **Keyboard Shortcut**: Press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> anywhere in the app to return to the server picker.
+1. **Via System Tray**: Right-click the Stoat icon in your system tray and select **"Switch Server / Launcher"**.
+2. **Via Keyboard Shortcut**: Press <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>S</kbd> anywhere while using the client to immediately return to the launcher.
 
 ---
 
-## 🤝 Forking & Contributing on GitHub
+## 🛠️ Self-Hosting Resources
 
-1. Click **Fork** on the upstream repository or this fork.
-2. In your local repository directory:
-   ```bash
-   git remote add origin https://github.com/<your-username>/<your-fork-name>.git
-   git push -u origin main
-   ```
-3. Submit issues or pull requests to improve the open launcher!
+- [Official Stoat Self-Hosted Guide](https://github.com/stoatchat/self-hosted)
+- [Stoat Developer Wiki](https://github.com/stoatchat/developer-wiki)
+
+---
+
+## 🤝 Contributing
+
+Contributions, bug reports, and suggestions are welcome!
+Feel free to open an issue or submit a pull request to [xyzmr114/open-stoat](https://github.com/xyzmr114/open-stoat).
 
 ---
 
 ## 📄 License
 
-GNU AGPL v3 (same as upstream Stoat / Revolt client).
+Open Stoat is licensed under the **GNU Affero General Public License v3 (AGPL-3.0)**, preserving the same copyleft license as the upstream Stoat / Revolt client. See [LICENSE](./LICENSE) for details.

@@ -4,7 +4,7 @@
   "version": "1.5.3",
   "description": "Open source launcher and desktop client for Stoat chat with self-hosted server support",
   "main": ".vite/build/main.js",
-  "repository": "stoatchat/desktop",
+  "repository": "xyzmr114/open-stoat",
   "scripts": {
     "start": "electron-forge start -- --no-sandbox",
     "package": "electron-forge package",
