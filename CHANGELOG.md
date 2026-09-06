@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.6.0](https://github.com/xyzmr114/open-stoat/compare/v1.5.3...v1.6.0) (2026-09-06)
+
+
+### Features
+
+* _add_Open_Stoat_launcher_with_self-hosted_server_support ([223f52d](https://github.com/xyzmr114/open-stoat/commit/223f52dadd11efa459dbfac85abe824ad72afb3e))
+* _define_OPEN_STOAT_VERSION_constant ([151f95b](https://github.com/xyzmr114/open-stoat/commit/151f95b841920db783b609cfcc0e81c7163769de))
+
+
+### Bug Fixes
+
+* **ci:** _fix_release-please_job_syntax_and_make_lint_task_resilient ([f7aa6b4](https://github.com/xyzmr114/open-stoat/commit/f7aa6b40eb2af552eaf2a3ed3a137f03d02fd69e))
+* **ci:** _make_mise_tasks_executable_and_support_pnpm_in_forks ([7701023](https://github.com/xyzmr114/open-stoat/commit/770102366f15b720d7d9d0c5c5f355400b2968b0))
+* **ci:** _restore_assets_submodule_and_support_fork_tokens ([6c923a1](https://github.com/xyzmr114/open-stoat/commit/6c923a18ef1d41aa07df44bb1ba39f0c62f286be))
+* **ci:** _use_standard_github_token_in_release-please ([87a9b6d](https://github.com/xyzmr114/open-stoat/commit/87a9b6dccf75b7fae1dafce227d678f3a15bf436))
+
 ## [1.5.3](https://github.com/stoatchat/for-desktop/compare/v1.5.2...v1.5.3) (2026-08-19)
 
 

@@ -1,7 +1,7 @@
 {
   "name": "stoat-desktop",
   "productName": "Open Stoat",
-  "version": "1.5.3",
+  "version": "1.6.0",
   "description": "Open source launcher and desktop client for Stoat chat with self-hosted server support",
   "main": ".vite/build/main.js",
   "repository": "xyzmr114/open-stoat",
